@@ -3,21 +3,57 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const bodyParser = require('body-parser');
 
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'secret_key';
 
-public_users.post("/register", (req,res) => {
-    const user = req.body.user;
-    if (!user) {
-        return res.status(404).json({message: "Body Empty"});
-    }
-    let accessToken = jwt.sign({
-        data: user
-      }, 'access', { expiresIn: 60 * 60 });
-      req.session.authorization = {
-        accessToken
-    }
-    return res.status(200).send("User successfully logged in");
+// parse application/x-www-form-urlencoded
+public_users.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+public_users.use(bodyParser.json())
+
+public_users.get('/register', (req, res) => {
+  const newUser = req.body;
+  // save newUser to database
+  // ...
+
+  // generate a JWT for the newly registered user
+  const token = jwt.sign({ id: newUser.id }, JWT_SECRET, { expiresIn: '24h' });
+
+  res.json({ message: 'User registered successfully'});
 });
+
+public_user.post("/review",(req,res)=>{
+    books.push({"author":req.query.author,"title":req.query.title,"isbn":req.query.isbn});
+    res.send("The new review" + (' ')+ (req.query.author) + " Has been added!")
+});
+
+
+public_user.delete("/:email", (req, res) => {
+    const email = req.params.email;
+    users = users.filter((user) => user.email != email);
+    res.send(`User with the email  ${email} deleted.`);
+  });
+
+public_user.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    // verify username and password against database
+    // ...
+  
+    // if login is successful, generate a JWT
+    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' });
+
+    router.delete("/:email", (req, res) => {
+        const email = req.params.email;
+        users = users.filter((user) => user.email != email);
+        res.send(`User with the email  ${email} deleted.`);
+      });
+
+
+
+
 
 // Get the book list available in the shop
 public_users.get('/',(req, res)=>{
